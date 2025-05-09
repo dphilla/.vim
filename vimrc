@@ -54,6 +54,9 @@ let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standar
 "just mapping to out-of-the-box vim commands
 map  <C-n> :tabnew<CR>
 
+" for not holding down j to move down!
+"nnoremap jj <nop>
+
 inoremap jj <Esc>
 
 ino " ""<left>
@@ -106,5 +109,70 @@ autocmd FileType vue syntax sync fromstart
 
 set modelines=0
 set nomodeline
+
+" Set path to search for tags file
+set tags=./tags;,tags;
+
+" Enable tags in Vim
+set tags+=./tags;
+
+"TODO - CHANGE to only do this in C projects
+" regenerate the tags file whenever you save any file in the project, keeping tags always up to date
+"autocmd BufWritePost * silent! !ctags -R . &
+"
+"fmt go files on save
+function! GoFmtPreserveCursor()
+  " 1) Save current cursor position
+  let [save_line, save_col] = [line('.'), col('.')]
+
+  " 2) Run gofmt on the entire buffer
+  silent! %!gofmt
+
+  " 3) Restore the cursor position, as long as it's not beyond the last line
+  if save_line <= line('$')
+    call setpos('.', [0, save_line, save_col, 0])
+  endif
+endfunction
+
+autocmd BufWritePre *.go call GoFmtPreserveCursor()
+
+function! LLMCopy() abort
+   " 1. Gather all files in current directory, recursively.
+  let l:files = split(system('find . -type f'), '\n')
+
+  " 2. Prepare a variable to store the aggregated content.
+  let l:all_contents = ''
+
+  " 3. Loop through each file path.
+  for l:file in l:files
+    " Ensure it's readable before proceeding.
+    if filereadable(l:file)
+      " Use `file --mime-type` to distinguish text from binary.
+      let l:mime = system('file --mime-type ' . shellescape(l:file))
+      if l:mime =~# 'text/'
+        " Read lines from the file.
+        let l:file_lines = readfile(l:file)
+
+        " Add a header for clarity
+        let l:all_contents .= "======== file: " . l:file . " ========\n"
+
+        " Append each line from the file
+        for l:line in l:file_lines
+          let l:all_contents .= l:line . "\n"
+        endfor
+
+        " Blank line after each file
+        let l:all_contents .= "\n"
+      endif
+    endif
+  endfor
+
+  " 4. Copy the entire string to your macOS clipboard via pbcopy.
+  call system('pbcopy', l:all_contents)
+
+  echom "All text files have been copied to the clipboard!"
+endfunction
+
+command! Lcp call LLMCopy()
 
 Helptags
