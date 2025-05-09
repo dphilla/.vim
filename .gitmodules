@@ -43,3 +43,6 @@
 [submodule "bundle/any-jump.vim"]
 	path = bundle/any-jump.vim
 	url = git@github.com:pechorin/any-jump.vim.git
+[submodule "bundle/fugitive"]
+	path = bundle/fugitive
+	url = https://tpope.io/vim/fugitive.git

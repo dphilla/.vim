@@ -3,6 +3,9 @@ execute pathogen#infect()
 
 filetype plugin indent on
 
+"just allow backspace to work in insert mode
+set backspace=indent,eol,start
+
 syntax enable
 syntax on
 set guifont=Monaco:h12
