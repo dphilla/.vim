@@ -140,8 +140,8 @@ endfunction
 autocmd BufWritePre *.go call GoFmtPreserveCursor()
 
 function! LLMCopy() abort
-   " 1. Gather all files in current directory, recursively.
-  let l:files = split(system('find . -type f'), '\n')
+  " 1. Gather all files in current directory, recursively, excluding common dependency directories.
+  let l:files = split(system('find . -type d \( -name .git -o -name node_modules -o -name target -o -name .cargo \) -prune -false -o -type f'), '\n')
 
   " 2. Prepare a variable to store the aggregated content.
   let l:all_contents = ''
